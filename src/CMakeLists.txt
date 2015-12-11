@@ -4,4 +4,15 @@ PROJECT(sparse_coding)
 
 add_definitions(-std=gnu++11)
 
+IF(APPLE)
+	MESSAGE ( STATUS "Searching for X11..." )
+	FIND_PACKAGE ( X11 REQUIRED )
+	IF ( X11_FOUND )
+	      INCLUDE_DIRECTORIES ( ${X11_INCLUDE_DIR} )
+	      LINK_LIBRARIES ( ${X11_LIBRARIES} )
+	      MESSAGE ( STATUS " X11_INCLUDE_DIR: " ${X11_INCLUDE_DIR} )
+	      MESSAGE ( STATUS " X11_LIBRARIES: " ${X11_LIBRARIES} )
+	ENDIF ( X11_FOUND )
+ENDIF(APPLE)
+
 ADD_EXECUTABLE(sparse_coding main.cpp CImg.h)
