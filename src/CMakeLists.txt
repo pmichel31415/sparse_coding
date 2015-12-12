@@ -15,4 +15,4 @@ IF(APPLE)
 	ENDIF ( X11_FOUND )
 ENDIF(APPLE)
 
-ADD_EXECUTABLE(sparse_coding main.cpp CImg.h)
+ADD_EXECUTABLE(sparse_coding main.cpp CImg.h sparse_coding.h sparse_coding.cpp)

@@ -1,13 +1,8 @@
-#include "CImg.h"
+#include "sparse_coding.h"
 #include <time.h>
 #include <iostream>
 
-using namespace std;
-
-using namespace cimg_library;
-typedef unsigned char uchar;
-
-#define ANTOINE
+#define PAUL
 
 #ifdef ANTOINE
 #define FOLDER "/Users/antoineprouvost/GitHub/sparse_coding/images/"
@@ -22,19 +17,11 @@ typedef unsigned char uchar;
 
 int main(){
 
-	CImg<uchar> image(FOLDER FILE);
-	CImg<uchar> rot(image);
-	uchar * ptr;
+	SparseCoding sc(FOLDER FILE);
 
-	
+	sc.showImage();
 
-	CImgDisplay main_disp(image, "Original"), draw_disp(rot, "Negatif");
-
-	while (!main_disp.is_closed() && !draw_disp.is_closed()) {
-		cimg_for(rot, ptr, uchar){ *ptr = (*ptr + 1) % 256; }
-		draw_disp.display(rot);
-//		sleep(20);
-	}
-
-	return 0;
+	sc.showRandomPatches();
+	sc.showRandomPatches();
+	sc.showRandomPatches();
 }
