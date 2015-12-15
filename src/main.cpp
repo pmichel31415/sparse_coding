@@ -2,7 +2,7 @@
 #include <time.h>
 #include <iostream>
 
-#define PAUL
+#define ANTOINE
 
 #ifdef ANTOINE
 #define FOLDER "/Users/antoineprouvost/GitHub/sparse_coding/images/"

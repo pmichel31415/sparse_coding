@@ -10,7 +10,6 @@ SparseCoding::SparseCoding(const char* filename, int p)
 	img = (buff_img.spectrum() > 1) ? buff_img.get_RGBtoYCbCr().channel(0) : buff_img;
 
 	build_patches();
-
 }
 
 
@@ -49,3 +48,11 @@ void SparseCoding::build_patches(){
 		}
 	}
 }
+
+CImg<uchar> SparseCoding::LARS(int t){}
+
+void SparseCoding::dic_update(int t){}
+
+void SparseCoding::dic_learn(){}
+
+void SparseCoding::restore(){}

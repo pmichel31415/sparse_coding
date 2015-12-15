@@ -17,14 +17,29 @@ public:
 
 	void showImage();
 	void showRandomPatches();
+    void restore();
 
 private:
-	int patch_size;
 	CImg<uchar> img;
+    CImgDisplay disp;
+    int patch_size;
 	CImgList<uchar> patches;
-	CImgList<uchar> D;
-	CImgDisplay disp;
+    int dic_size;
+    CImgList<uchar> dictionary;
+    double lambda; //regularisation parameter for dictionary learning
+    CImgList<uchar> A;
+    CImgList<uchar> B;
+
 
 	void build_patches();
+    
+    CImg<uchar> LARS(int t);
+    
+    void dic_update(int t);
+    
+    void dic_learn();
+    
 
 };
+
+CImgList<uchar> dot(CImgList<uchar> X, CImgList<uchar> Y);
