@@ -18,11 +18,13 @@
 
 int main(){
 
-	SparseCoding sc(FOLDER FILE);
+	SparseCoding sc(FOLDER FILE, 5, 10, 0.5);
 
 	sc.showImage();
 
+//	sc.showRandomPatches();
+//	sc.showRandomPatches();
 	sc.showRandomPatches();
-	sc.showRandomPatches();
-	sc.showRandomPatches();
+    
+    sc.restore();
 }

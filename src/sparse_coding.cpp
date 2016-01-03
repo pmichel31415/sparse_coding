@@ -4,8 +4,11 @@
 
 // SparseCoding functions
 
-SparseCoding::SparseCoding(const char* filename, int p){
-	patch_size = p;
+SparseCoding::SparseCoding(const char* filename, int patch_size, int dic_size, double lambda){
+	this->patch_size = patch_size;
+    this->dic_size = dic_size;
+    this->lambda = lambda;
+    
 	CImg<uchar> buff_img = CImg<uchar>(filename);
 	// Color to B&W
 	img = (buff_img.spectrum() > 1) ? buff_img.get_RGBtoYCbCr().channel(0) : buff_img;
@@ -58,7 +61,7 @@ arma::vec SparseCoding::LARS(){
     
     //The input matrix (like all mlpack matrices) should be column-major
     //each column is an observation and each row is a dimension.
-    L.Regress(dictionary, x, alpha);
+    L.Regress(dictionary, x, alpha, false);
     
     return alpha;
 }
@@ -80,7 +83,7 @@ void SparseCoding::dic_learn(int T){
     srand(time(0));
     for(int j=0; j< dic_size; j++){
         unsigned int n_patch = patches.size() * ((double)rand() / RAND_MAX);
-        dictionary.col(j) = CImgTovec(patches(n_patch));
+        dictionary.col(j) = patchTovec(patches(n_patch));
     }
     
     //initiate x and alpha
@@ -95,7 +98,7 @@ void SparseCoding::dic_learn(int T){
     //iterate learning
     for (int t=1; t<=T; t++) {
         //draw x a patch
-        x=CImgTovec(patches(patches.size() * ((double)rand() / RAND_MAX)));
+        x=patchTovec(patches(patches.size() * ((double)rand() / RAND_MAX)));
         
         //LARS to compute alpha = argmin 1/2|| x - dictionary * alpha||_2 ^2 + lamda ||alpha|_1
         alpha = LARS();
@@ -109,7 +112,7 @@ void SparseCoding::dic_learn(int T){
     }
 }
 
-arma::vec SparseCoding::CImgTovec(CImg<uchar> I){
+arma::vec SparseCoding::patchTovec(CImg<uchar> I){
     arma::vec u(I.height()*I.width() );
     cimg_forXY(I,x,y){
         u[x+y*I.height()] = I[x,y];
@@ -117,7 +120,7 @@ arma::vec SparseCoding::CImgTovec(CImg<uchar> I){
     return u;
 }
 
-CImg<uchar> SparseCoding::vecToCImg(arma::vec u){
+CImg<uchar> SparseCoding::vecTopatch(arma::vec u){
     CImg<uchar> I(patch_size, patch_size);
     cimg_forXY(I, x, y){
         I[x,y] = static_cast<uchar>(u[x+y*I.height()]);
@@ -125,5 +128,7 @@ CImg<uchar> SparseCoding::vecToCImg(arma::vec u){
     return I;
 }
 
-void SparseCoding::restore(){}
+void SparseCoding::restore(){
+    dic_learn(20);
+}
 
