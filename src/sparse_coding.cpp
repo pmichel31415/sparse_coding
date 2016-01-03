@@ -61,7 +61,7 @@ arma::vec SparseCoding::LARS(){
     
     //The input matrix (like all mlpack matrices) should be column-major
     //each column is an observation and each row is a dimension.
-    L.Regress(dictionary, x, alpha, false);
+    L.Train(dictionary, x, alpha, false);
     
     return alpha;
 }
@@ -129,6 +129,6 @@ CImg<uchar> SparseCoding::vecTopatch(arma::vec u){
 }
 
 void SparseCoding::restore(){
-    dic_learn(20);
+    dic_learn(100);
 }
 
