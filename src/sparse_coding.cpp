@@ -1,5 +1,12 @@
 #include "sparse_coding.h"
 
+void print(arma::mat m){
+    for(int i=0; i< m.n_rows; i++){
+        cout << m.row(i) << endl;
+    }
+    
+}
+
 
 
 // SparseCoding functions
@@ -9,7 +16,7 @@ SparseCoding::SparseCoding(const char* filename, int patch_size, int dic_size, d
     this->dic_size = dic_size;
     this->lambda = lambda;
     
-	CImg<uchar> buff_img = CImg<uchar>(filename);
+	CImg<double> buff_img = CImg<double>(filename);
 	// Color to B&W
 	img = (buff_img.spectrum() > 1) ? buff_img.get_RGBtoYCbCr().channel(0) : buff_img;
 
@@ -24,7 +31,7 @@ void SparseCoding::showImage(){
 void SparseCoding::showRandomPatches(){
 	srand(time(0));
 	int size = 30;
-	CImg<uchar> n_img(size * patch_size, size * patch_size);
+	CImg<double> n_img(size * patch_size, size * patch_size);
 	for (int i = 0; i < size; i++){
 		for (int j = 0; j < size; j++){
 			unsigned int n_patch = patches.size() * ((double)rand() / RAND_MAX);
@@ -41,8 +48,26 @@ void SparseCoding::showRandomPatches(){
 	while (! disp.wait().is_keyENTER());
 }
 
+void SparseCoding::showDic(){
+    int size = static_cast<int>( sqrt(dic_size) ) + 1;
+    CImg<double> n_img(size * patch_size, size * patch_size);
+    for (int i = 0; i < size; i++){
+        for (int j = 0; j < size; j++){
+            for (int x = 0; x < patch_size; x++){
+                for (int y = 0; y < patch_size; y++){
+                    n_img(i * patch_size + x, j * patch_size + y)
+                    = i+size*j< dic_size ? dictionary.col(i+size*j)(x + y*patch_size) : 0;
+                }
+            }
+            
+        }
+    }
+    disp.display(n_img);
+    while (! disp.wait().is_keyENTER());
+}
+
 void SparseCoding::build_patches(){
-	patches = CImgList<uchar>((img.width() - patch_size)*(img.height() - patch_size), patch_size, patch_size);
+	patches = CImgList<double>((img.width() - patch_size)*(img.height() - patch_size), patch_size, patch_size);
 	for (int x = 0; x < img.width() - patch_size; x++){
 		for (int y = 0; y < img.height() - patch_size; y++){
 			cimg_forXY(patches[x*(img.height() - patch_size) + y], i, j){
@@ -61,7 +86,12 @@ arma::vec SparseCoding::LARS(){
     
     //The input matrix (like all mlpack matrices) should be column-major
     //each column is an observation and each row is a dimension.
-    L.Train(dictionary, x, alpha, false);
+    
+    //mlpack 1.0.12 version
+    L.Regress(dictionary, x, alpha, false);
+    
+    //mlpack 2.0.0 version
+    //L.Train(dictionary, x, alpha, false);
     
     return alpha;
 }
@@ -69,23 +99,30 @@ arma::vec SparseCoding::LARS(){
 void SparseCoding::dic_update(){
     //temporary vector u
     arma::vec u;
-    
     //jth column of dictionary being updated
     for(int j=0; j<dictionary.n_cols; j++){
-        u = (1/A[j,j]) * (B.col(j) - dictionary*A.col(j)) + dictionary.col(j);
-        dictionary.col(j) = arma::norm(u) >1 ? u/arma::norm(u) : u;
+        u =  (B.col(j) - dictionary * A.col(j));
+        if(A(j,j) !=0 )
+            u =  u / A(j,j);
+        u += dictionary.col(j);
+        u = arma::norm(u)  > 1 ? u/arma::norm(u) : u;
+        for(int i=0; i< dictionary.n_rows; i++)
+            dictionary(i,j) = u(i);
     }
 }
 
 void SparseCoding::dic_learn(int T){
     //initiate dictionnary
     dictionary = arma::mat(patch_size*patch_size, dic_size);
+
     srand(time(0));
     for(int j=0; j< dic_size; j++){
-        unsigned int n_patch = patches.size() * ((double)rand() / RAND_MAX);
-        dictionary.col(j) = patchTovec(patches(n_patch));
+        int n_patch = patches.size() * ((double)rand() / RAND_MAX);
+        arma::vec x = patchTovec(patches(n_patch));
+        for(int i=0; i< dictionary.n_rows; i++)
+            dictionary(i,j) = x(i)/255;
     }
-    
+        showDic();
     //initiate x and alpha
     arma::vec alpha;
     
@@ -106,24 +143,23 @@ void SparseCoding::dic_learn(int T){
         //update two matrices A and B
         A = A + alpha * alpha.t();
         B = B + x * alpha.t();
-        
         //update dictionary using A and B
         dic_update();
     }
 }
 
-arma::vec SparseCoding::patchTovec(CImg<uchar> I){
+arma::vec SparseCoding::patchTovec(CImg<double> I){
     arma::vec u(I.height()*I.width() );
-    cimg_forXY(I,x,y){
-        u[x+y*I.height()] = I[x,y];
-    }
+    for(int x=0; x<I.height(); x++)
+        for (int y=0; y<I.width(); y++)
+            u(x+y*I.height()) = I(x,y);
     return u;
 }
 
-CImg<uchar> SparseCoding::vecTopatch(arma::vec u){
-    CImg<uchar> I(patch_size, patch_size);
+CImg<double> SparseCoding::vecTopatch(arma::vec u){
+    CImg<double> I(patch_size, patch_size);
     cimg_forXY(I, x, y){
-        I[x,y] = static_cast<uchar>(u[x+y*I.height()]);
+        I(x,y) = u(x+y*I.height());
     }
     return I;
 }
@@ -131,4 +167,5 @@ CImg<uchar> SparseCoding::vecTopatch(arma::vec u){
 void SparseCoding::restore(){
     dic_learn(100);
 }
+
 

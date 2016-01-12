@@ -12,6 +12,7 @@ add_definitions(-std=gnu++11)
 	include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 	#find_package(mlpack REQUIRED)
+	find_library(MLPACK_LIBRARY NAMES mlpack)
 	include_directories(${MLPACK_INCLUDE_DIR})
 
 IF(APPLE)

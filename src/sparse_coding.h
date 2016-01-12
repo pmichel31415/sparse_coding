@@ -7,10 +7,6 @@
 using namespace std;
 using namespace cimg_library;
 
-typedef unsigned char uchar;
-typedef vector<uchar> vec;
-typedef vector<vec> mat;
-
 class SparseCoding
 {
 public:
@@ -19,16 +15,17 @@ public:
 
 	void showImage();
 	void showRandomPatches();
+    void showDic();
     void restore();
 
     
 private:
     
-	CImg<uchar> img; //original image
+	CImg<double> img; //original image
     CImgDisplay disp; //GUI windoe to show images
     
     int patch_size;
-	CImgList<uchar> patches; //list of all available patches in the original image
+	CImgList<double> patches; //list of all available patches in the original image
     
     int dic_size; //number of patches considered in the dictionary
     arma::mat dictionary; //each column is a patch and each row is a dimension.
@@ -47,9 +44,9 @@ private:
     
     void dic_learn(int T);
     
-    arma::vec patchTovec(CImg<uchar> I);
+    arma::vec patchTovec(CImg<double> I);
     
-    CImg<uchar> vecTopatch(arma::vec x);
+    CImg<double> vecTopatch(arma::vec x);
     
 
 };
