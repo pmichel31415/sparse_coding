@@ -53,12 +53,12 @@ Le fonctionnement de l'algorithme consiste à apprendre un dictionnaire de sous i
 				$\vec{u} = \frac{1}{\vec{A}_{j,j}}(\vec{b}_{j} - \vec{D}\vec{a}_{j})$\;
 				$\vec{d}_{j} = \frac{1}{\max (\parallel\vec{u}\parallel_{2},1)}$\;
 			}
- 			 
 	 	}
 		 \Return D\;
  \caption{Online dictionary learning}
 \end{algorithm}
 	\subsection{Reconstruction d'image}
+		Pour reconstruire l'image, nous suivons les méthodes proposées par \cite{ref2}. La méthode proposée consiste à minimiser l'énergie une fois le dictionnaire fixé. Pour $\epsilon >0$ fixé, on s'intéresse pour chaque patch $\vec{x} \in \mathbb{R}^{m}$ (précédemment centré) à : $$\min_{\alpha \in \mathbb{R}^{k}} \parallel\alpha\parallel_{0} S.C. \parallel \vec{x} - \vec{D}\alpha\parallel_{2}^{2} < \epsilon$$
 
 \cleardoublepage
 \section{Implementation, résultats et interprétation}
