@@ -1,5 +1,8 @@
 \documentclass[a4paper, titlepage]{article}
 \usepackage[sectionmark,fancysections]{polytechnique}
+\usepackage[latin1]{inputenc}
+\usepackage[cyr]{aeguill}
+\usepackage[francais]{babel}
 \usepackage{enumitem}
 \usepackage{hyperref}
 \usepackage{amsmath}
@@ -7,8 +10,6 @@
 \usepackage[]{algorithm2e}
 
 \renewcommand{\vec}[1]{\mathbf{#1}}
-\renewcommand{\contentsname}{Sommaire}
-
 
 
 \title{INF 552\\Image et vision par ordinateur}
@@ -27,9 +28,25 @@
 
 Nos motivations pour ce projet étaient de pouvoir implementer un algorithme d'apprentissage avec une vraie application au traitement des images.
 
-Nous avons rapidement trouvé des travaux de recherche de l'Inria ainsi qu'un cours qui s'intéressaient à ce sujet \cite{ref1}. L'idée qui nus a tout de suite plut était de pouvoir reconstruire des images bruitées, partiellement détruites ou marquées.
+Nous avons rapidement trouvé des travaux de recherche de l'Inria ainsi qu'un cours qui s'intéressaient à ce sujet \cite{ref1}. L'idée qui nus a tout de suite plut était de pouvoir reconstruire des images bruitées, partiellement détruites ou marquées. Sur la figure \ref{mot}, nous montrons les résultats des recherches de l'Inria \cite{ref1} qui nous ont motivés.
 
-Le fonctionnement de l'algorithme consiste à apprendre un dictionnaire de sous images, appelés "patches", de l'image initiale ;  puis, d'utiliser celui-ci pour reconstruire chaque patche.
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[scale=0.55]{./img/motivation.jpg} 
+	\end{center}
+	\caption{Motivation : résultats des méthodes de l'Inria\cite{ref1}}
+	\label{mot}
+\end{figure}
+
+Le fonctionnement de l'algorithme consiste à apprendre un dictionnaire de sous images, appelés "patches", de l'image initiale ;  puis, d'utiliser celui-ci pour reconstruire chaque patche. La figure \ref{dic} montre un exemple de dictionnaire obtenu par l'Inria \cite{ref1}. On peut y apercevoir des "features" de l'image.
+
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[scale=0.55]{./img/dic.jpg} 
+	\end{center}
+	\caption{Exemple de dictionnaire obtenu par l'Inria \cite{ref1}}
+	\label{dic}
+\end{figure}
 
 \cleardoublepage
 \section{Algorithme et références}
@@ -56,12 +73,43 @@ Le fonctionnement de l'algorithme consiste à apprendre un dictionnaire de sous i
 	 	}
 		 \Return D\;
  \caption{Online dictionary learning}
+ \label{algo1}
 \end{algorithm}
 	\subsection{Reconstruction d'image}
 		Pour reconstruire l'image, nous suivons les méthodes proposées par \cite{ref2}. La méthode proposée consiste à minimiser l'énergie une fois le dictionnaire fixé. Pour $\epsilon >0$ fixé, on s'intéresse pour chaque patch $\vec{x} \in \mathbb{R}^{m}$ (précédemment centré) à : $$\min_{\alpha \in \mathbb{R}^{k}} \parallel\alpha\parallel_{0} S.C. \parallel \vec{x} - \vec{D}\alpha\parallel_{2}^{2} < \epsilon$$
+		
+		COMMENT S'APPELLE L'ALAGO DEJA ?
 
 \cleardoublepage
 \section{Implementation, résultats et interprétation}
+	\subsection{Python}
+	
+	\subsection{C++}
+		Pour notre implementation en C++, nous avons initialement décidé de travailler avec la bibliothèque \emph{CImg}. Celle-ci est plus simple d'utilisation que \emph{OpenCV} et s'inclue en un simple fichier .h. Finalement, cette bibliothèque ne a servi qu'à ouvrir et afficher les images.
+		\\
+		
+		Nous n'avons pas implementer nous même la la méthode LARS utilisé dans l'algorithme. Pour cela, nous avons fait appel à la librairie \emph{MlPack} qui travaille avec les matrices et l'algèbre linéaire de la librairie \emph{Armadillo}. Nous avons donc travaillé avec ces objets pour notre algorithme.
+		\\
+		
+		Malheureusement, nous n'avons pas réussi à présent à faire converger l'algorithme \ref{algo1} en C++ et obtenons des résultats décevants sans avoir pu en trouver l'origine. Le code C++ se trouve dans le répertoire "src" de notre projet.
+		
+		Sur l'image \ref{C}, nous pouvons observer de gauche à droite : l'image initiale avec un bruit gaussien, le dictionnaire initiale de patches $5*5$ et le dictionnaire final après l'algorithme. Quelques patches ont été encadrés en rouge pour en montrer leur représentation sur l'image.
+		\begin{figure}[!h]
+			\begin{center}
+				\includegraphics[scale=0.3]{./img/C_result.jpg} 
+			\end{center}
+			\caption{Résultats de l'implementation C++}
+			\label{C}
+		\end{figure}
+
+\cleardoublepage
+\section*{Conclusion}
+\addcontentsline{toc}{section}{Conclusion}
+
+Le problème qui nous tenait à coeur et que nous avons choisi pour ce projet nous a quelques peu dépassé. Bien que l'implémentation ne soit pas insurmontable, loin de là, nous avons tout de même passé un certain temps à étudier l'algorithme et à étudier les librairies qui nous permettraient de l'implémenter.
+
+Même si nous n'avons pas pu obtenir un code final fonctionnel, nous avons cependant pu comprendre le fonctionnement général de cet algorithme de reconstruction.
+
 
 \cleardoublepage
 \bibliographystyle{plain}
