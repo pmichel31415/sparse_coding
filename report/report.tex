@@ -50,8 +50,8 @@ Le fonctionnement de l'algorithme consiste à apprendre un dictionnaire de sous i
 
 \cleardoublepage
 \section{Algorithme et références}
+		Nous utilisons essentiellement l'algorithme proposé dans \cite{ref2}, en appliquant quelques optimisations (utilisation de plusieurs patches à chaque itération, renouvellement des éléments du dictionnaires (atomes) nuls...
 	\subsection{Dictionary Learning}
-	Pour apprendre le dictionnaire, nous avons suivi les travaux de l'article \cite{ref2}. 
 	
 	Nous commençons par extraire l'ensemble des patches de l'image. Un patch est représenté ici comme un vecteur $\vec{x} \in \mathbb{R}^{m}$ où $m \in \mathbb{N}^{*}$ est la taille constante des patches (son nombre de pixels). Le dictionnaire, dont nous fixons la taille  $k \in \mathbb{N}^{*}$ est quant à lui représenté par une matrice $\vec{D} \in \mathbb{R}^{m*k}$. Les éléments du dictionnaire sont stockés en colones.\\
 	
@@ -59,22 +59,27 @@ Le fonctionnement de l'algorithme consiste à apprendre un dictionnaire de sous i
  		\KwData{$\lambda \in \mathbb{R}$, facteur de régularisation\\
 		$T \in \mathbb{N}$, nombre d'itération de l'algorithme}
  		\KwResult{Un dictionnaire $\vec{D} \in \mathbb{R}^{m*k}$}
- 		Remplir le dictionnaire initial $\vec{D}$ en choisissant aléatoirement des patches de l'image\;
+ 		Remplir le dictionnaire initial $\vec{D}$ aléatoirement (une amélioration est d'utiliser des vecteurs propres de la matrice des patches : non implémenté)\;
 		Initialiser deux matrices $\vec{A} \in \mathbb{R}^{m*m}$ et $\vec{B} \in \mathbb{R}^{m*k}$ à $0$\;
  		\For{$t=1$ to $T$}{
- 		 	Tirer aléatoirement un patche $\vec{x} \in \mathbb{R}^{m}$ dans le dictionnaire (OU DANS LES PATCHS ?)\;
+ 		 	Tirer aléatoirement un (ou plusieurs) patche $\vec{x} \in \mathbb{R}^{m}$ dans l'ensemble des patches\;
 			Calculer :$$\alpha = \arg \min_{\alpha \in  \mathbb{R}^{m}} \frac{1}{2}\parallel \vec{x} - \vec{D}*\vec{\alpha}\parallel_{2}^{2} + \lambda\parallel \vec{\alpha} \parallel_{1} $$à l'aide de LARS\;
 			$A = A + \alpha\alpha^{T}$\;
 			$B = B + \vec{x}\alpha^{T}$\;
 			\For{$j=1$ to $k$}{
 				$\vec{u} = \frac{1}{\vec{A}_{j,j}}(\vec{b}_{j} - \vec{D}\vec{a}_{j})$\;
-				$\vec{d}_{j} = \frac{1}{\max (\parallel\vec{u}\parallel_{2},1)}$\;
+				\If{$\vec{u}$ trop proche de $0$}{
+					Réinitialiser $\vec{u}$ de façon aléatoire 
+				}
+				$\vec{d}_{j} = \frac{1}{\parallel\vec{u}\parallel_{2}}$\;
 			}
 	 	}
 		 \Return D\;
  \caption{Online dictionary learning}
  \label{algo1}
 \end{algorithm}
+
+		Nous n'avons pas pu implémenter toutes les optimisations de l'algorithme en C++. Tout est cependant implémenté en python.
 	\subsection{Reconstruction d'image}
 		Pour reconstruire l'image, nous utilisons l'agorithme d'orthogonal matching pursuit (OPM) \cite{ref2}. La méthode proposée consiste à minimiser l'énergie une fois le dictionnaire fixé. Pour $k >0$ fixé, on s'intéresse pour chaque patch $\vec{x} \in \mathbb{R}^{m}$ (précédemment centré) à : $$\min_{\alpha \in \mathbb{R}^{k}} \parallel \vec{x} - \vec{D}\alpha\parallel_{2}^{2} S.C. \parallel\alpha\parallel_{0} < k$$
 		
