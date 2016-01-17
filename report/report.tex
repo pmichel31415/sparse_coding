@@ -80,7 +80,7 @@
 
 		Nous n'avons pas pu implémenter toutes les optimisations de l'algorithme en C++. Tout est cependant implémenté en python.
 	\subsection{Reconstruction d'image}
-		Pour reconstruire l'image, nous utilisons l'agorithme d'orthogonal matching pursuit (OPM) \cite{ref2}. La méthode proposée consiste à minimiser l'énergie une fois le dictionnaire fixé. Pour $k >0$ fixé, on s'intéresse pour chaque patch $\vec{x} \in \mathbb{R}^{m}$ (précédemment centré) à : $$\min_{\alpha \in \mathbb{R}^{k}} \parallel \vec{x} - \vec{D}\alpha\parallel_{2}^{2} S.C. \parallel\alpha\parallel_{0} < k$$
+		Pour reconstruire l'image, nous utilisons l'agorithme d'orthogonal matching pursuit (OPM) \cite{ref3}. La méthode proposée consiste à minimiser l'énergie une fois le dictionnaire fixé. Pour $k >0$ fixé, on s'intéresse pour chaque patch $\vec{x} \in \mathbb{R}^{m}$ (précédemment centré) à : $$\min_{\alpha \in \mathbb{R}^{k}} \parallel \vec{x} - \vec{D}\alpha\parallel_{2}^{2} S.C. \parallel\alpha\parallel_{0} < k$$
 		
 
 \cleardoublepage
