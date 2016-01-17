@@ -13,7 +13,7 @@
 
 
 \title{INF 552\\Image et vision par ordinateur}
-\subtitle{Projet : Reconstruction d'images par apprentissage}
+%\subtitle{Projet : Reconstruction d'images par apprentissage}
 \date{17 Janvier 2016}
 \author{Paul Michel\\Antoine Prouvost\\Élèves en troisième année}
 
@@ -28,7 +28,7 @@
 
 Nos motivations pour ce projet étaient de pouvoir implementer un algorithme d'apprentissage avec une vraie application au traitement des images.
 
-Nous avons rapidement trouvé des travaux de recherche de l'Inria ainsi qu'un cours qui s'intéressaient à ce sujet \cite{ref1}. L'idée qui nus a tout de suite plut était de pouvoir reconstruire des images bruitées, partiellement détruites ou marquées. Sur la figure \ref{mot}, nous montrons les résultats des recherches de l'Inria \cite{ref1} qui nous ont motivés.
+Nous avons rapidement trouvé des travaux de recherche de l'Inria ainsi qu'un cours qui s'intéressaient à ce sujet \cite{ref1}. L'idée qui nous a tout de suite plu était de pouvoir reconstruire des images bruitées, partiellement détruites ou marquées. Sur la figure \ref{mot}, nous montrons les résultats des recherches de l'Inria \cite{ref1} qui nous ont motivés.
 
 \begin{figure}[!h]
 	\begin{center}
@@ -51,7 +51,7 @@ Le fonctionnement de l'algorithme consiste à apprendre un dictionnaire de sous i
 \cleardoublepage
 \section{Algorithme et références}
 	\subsection{Dictionary Learning}
-	Pour apprendre le dictionnaire, nous avons suivi les travaux de l'article \cite{ref3}. 
+	Pour apprendre le dictionnaire, nous avons suivi les travaux de l'article \cite{ref2}. 
 	
 	Nous commençons par extraire l'ensemble des patches de l'image. Un patch est représenté ici comme un vecteur $\vec{x} \in \mathbb{R}^{m}$ où $m \in \mathbb{N}^{*}$ est la taille constante des patches (son nombre de pixels). Le dictionnaire, dont nous fixons la taille  $k \in \mathbb{N}^{*}$ est quant à lui représenté par une matrice $\vec{D} \in \mathbb{R}^{m*k}$. Les éléments du dictionnaire sont stockés en colones.\\
 	
@@ -76,13 +76,11 @@ Le fonctionnement de l'algorithme consiste à apprendre un dictionnaire de sous i
  \label{algo1}
 \end{algorithm}
 	\subsection{Reconstruction d'image}
-		Pour reconstruire l'image, nous suivons les méthodes proposées par \cite{ref2}. La méthode proposée consiste à minimiser l'énergie une fois le dictionnaire fixé. Pour $\epsilon >0$ fixé, on s'intéresse pour chaque patch $\vec{x} \in \mathbb{R}^{m}$ (précédemment centré) à : $$\min_{\alpha \in \mathbb{R}^{k}} \parallel\alpha\parallel_{0} S.C. \parallel \vec{x} - \vec{D}\alpha\parallel_{2}^{2} < \epsilon$$
+		Pour reconstruire l'image, nous utilisons l'agorithme d'orthogonal matching pursuit (OPM) \cite{ref2}. La méthode proposée consiste à minimiser l'énergie une fois le dictionnaire fixé. Pour $k >0$ fixé, on s'intéresse pour chaque patch $\vec{x} \in \mathbb{R}^{m}$ (précédemment centré) à : $$\min_{\alpha \in \mathbb{R}^{k}} \parallel \vec{x} - \vec{D}\alpha\parallel_{2}^{2} S.C. \parallel\alpha\parallel_{0} < k$$
 		
-		COMMENT S'APPELLE L'ALAGO DEJA ?
 
 \cleardoublepage
 \section{Implementation, résultats et interprétation}
-	\subsection{Python}
 	
 	\subsection{C++}
 		Pour notre implementation en C++, nous avons initialement décidé de travailler avec la bibliothèque \emph{CImg}. Celle-ci est plus simple d'utilisation que \emph{OpenCV} et s'inclue en un simple fichier .h. Finalement, cette bibliothèque ne a servi qu'à ouvrir et afficher les images.
@@ -101,15 +99,29 @@ Le fonctionnement de l'algorithme consiste à apprendre un dictionnaire de sous i
 			\caption{Résultats de l'implementation C++}
 			\label{C}
 		\end{figure}
-
+\clearpage
+\subsection{Python}
+		Devant les difficultés que nous avons rencontré en C++, nous avons rapidement décidé de réaliser un prototype en python afin de repérer nos erreurs. Les avantages de l'utilisation de python était la simplicité à installer et utiliser des librairies d'optimisation (dont l'implémentation sortait du cadre de notre projet), ainsi que la rapidité d'implémentation.
+		
+		Il a été fait usage des packages numpy (pour des opérations plus efficaces sur les tableaux), scipy et PIL (pour la conversion image/tableau) et scikit-learn (pour l'optimisation LARS lasso et OMP).
+		
+		Les résultats obtenus sont légèrement plus convaincants:
+		\begin{figure}[!h]
+			\begin{center}
+				\includegraphics[scale=0.45]{./img/python_result.png} 
+			\end{center}
+			\caption{Résultats de l'implementation python (image originale, reconstruite et dictionnaire)}
+		\end{figure}
+		Cependant, l'image obtenue après reconstitution est plus floue. Nous pensons que ces problèmes sont en partie lié au fait que les images de base étant déjà petite et donc peu précises, il est difficile de distinguer le bruit de l'image originale. Nous ne disposions malheureusement pas du matériel nécessaire pour faire tourner notre programme sur des images plus grosses (nous sommes restés en dessous du $400\times 400$ pixels.
+		
+		Notre code python est trouvable dans le répertoire /python de notre dépôt git. Les packages nécessaires pour le faire tourner sont inclus dans beaucoup de distributions python scientifiques (anaconda pour ne citer qu'elle).
+		
 \cleardoublepage
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
-
-Le problème qui nous tenait à coeur et que nous avons choisi pour ce projet nous a quelques peu dépassé. Bien que l'implémentation ne soit pas insurmontable, loin de là, nous avons tout de même passé un certain temps à étudier l'algorithme et à étudier les librairies qui nous permettraient de l'implémenter.
-
-Même si nous n'avons pas pu obtenir un code final fonctionnel, nous avons cependant pu comprendre le fonctionnement général de cet algorithme de reconstruction.
-
+		Bien que nous nous soyons heurtés à des difficultés d'implémentation, en raison notamment d'une dépendance importante envers des librairies d'optimisation, nous avons néanmoins obtenus des résultats satisfaisants sur notre implémentation python : les dictionnaires obtenus sont cohérents.
+		Pour poursuivre notre projet nous envisageons, maintenant que notre implémentation est fonctionnelle, de la transposer en C++.
+		Certaines améliorations peuvent être apportées à l'algorithme. Par exemple, lors de l'apprentissage du dictionnaire, certains "atomes" restent nuls ou aléatoires. On peut imaginer les éliminer en n'acceptant par exemple que les atomes ayant une entropie sous un certain niveau afin de maximiser l'information obtenue.
 
 \cleardoublepage
 \bibliographystyle{plain}

@@ -1,7 +1,7 @@
 import numpy as np
 import cvxpy as cp
 from scipy import misc, linalg
-from sklearn.linear_model import LassoLars
+from sklearn.linear_model import LassoLars, orthogonal_mp
 from sklearn.decomposition import MiniBatchDictionaryLearning
 
 
@@ -79,6 +79,11 @@ def lasso_seq(dict, target, gamma):
     for i in range(batch_size):
         alphas[:, i] = lasso_sklearn(dict, target[:, i][:, np.newaxis], gamma)[:, 0]
     return alphas
+
+
+def omp(patch, dic, atoms):
+    alpha = orthogonal_mp(dic, patch, n_nonzero_coefs=atoms)
+    return dic.dot(alpha)
 
 
 def sklearn_check(img, patch_size, dic_size, T=1000):

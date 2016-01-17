@@ -53,7 +53,6 @@ def learn_dic(patches, dic_size, T=1000, lambd=0.1, batch_size=100):
     D = np.random.rand(patch_size, dic_size)
 
     for t in range(T):
-
         # Extract batch as array of column-vectors
         batch_indices = np.random.choice(range(len(patches)), size=batch_size)
         x = patches[batch_indices].T
@@ -69,13 +68,19 @@ def learn_dic(patches, dic_size, T=1000, lambd=0.1, batch_size=100):
         D = update_dic(D, A, B)
 
         # Print percentage
-        if (t + 1) % int(T / 10) == 0:
-            print("\r{0}".format(int((float(t + 1) / T) * 100)), "%", end="", flush=True)
+        print("\rDictionary learning: {0}".format(int((float(t + 1) / T) * 100)), "%", end="", flush=True)
 
     return D
 
 
+def sparse_code(imglist, dic, atoms=3):
+    for i in range(len(imglist)):
+        imglist[i] = optim.omp(imglist[i], dic, atoms=atoms)
+        print("\rImage reconstruction: {0}".format(int((float(i + 1) / len(imglist)) * 100)), "%", end="", flush=True)
+
+
 def rebuild(patch, dic, lambd):
+    return skl
     D = np.asarray([x.getdata() for x in dic]).transpose()
     X = img.getdata()
     alpha = optim.lasso_seq(D, X, lambd)
@@ -120,17 +125,12 @@ def show_dic(dic, d):
     return dicimg
 
 
-if __name__=="__main__":
-
+def build_dic(img_filename, dic_filename, dic_img_filename, patch_size):
     # Define parameters
-    patch_size = 8  # Side length of patches
     dic_size = 100  # Size of dictionary (number of atoms)
     regularization = 1.2 / dic_size  # Regularization parameter of the Lasso optimization problem
-    batch_size = 3  # Size of batches
-    n_iter = 1000  # Number of iterations
-
-    # Image name
-    img_filename = "../images/donuts.png"
+    batch_size = 5  # Size of batches
+    n_iter = 5000  # Number of iterations
 
     # Open image
     img = Image.open(img_filename)
@@ -142,8 +142,36 @@ if __name__=="__main__":
     D = learn_dic(patches, dic_size, T=n_iter, batch_size=batch_size, lambd=regularization)
 
     # Save dictionary to file
-    save_dic(D, "dic.txt")
+    save_dic(D, dic_filename)
 
     # Save dictionary as nice image
     dicimg = show_dic(D, patch_size)
-    misc.imsave("dicimg.jpg", dicimg)
+    misc.imsave(dic_img_filename, dicimg)
+
+
+def rebuild_image(img_filename, dic_filename, output_filename, patch_size):
+    D = load_dic(dic_filename)
+
+    # Open image
+    img = Image.open(img_filename)
+
+    # Get patches from image
+    patches = img_preprocessing.get_patches(img, patch_size)
+
+    sparse_code(patches, D, atoms=3)
+    n_img = img_preprocessing.build_from_patches(patches, img.size)
+
+    n_img.save(output_filename)
+
+
+if __name__ == "__main__":
+    folder = "../images/"
+    original_image = "para.png"
+    noisy_image = "para_noise.png"
+    dic_img = "para_dic.png"
+    dic_file = "para_dic.txt"
+    output_image = "para_noise_reconstructed.png"
+    patch_size = 12  # Side length of patches
+
+    #build_dic(folder + original_image, dic_file, folder + dic_img, patch_size)
+    rebuild_image(folder + noisy_image, dic_file, folder + output_image, patch_size)
