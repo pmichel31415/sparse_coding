@@ -102,10 +102,17 @@ void SparseCoding::dic_update(){
     //jth column of dictionary being updated
     for(int j=0; j<dictionary.n_cols; j++){
         u =  (B.col(j) - dictionary * A.col(j));
-        if(A(j,j) !=0 )
-            u =  u / A(j,j);
-        u += dictionary.col(j);
-        u = arma::norm(u)  > 1 ? u/arma::norm(u) : u;
+        u += A(j,j) * dictionary.col(j);
+        double u_norm = arma::norm(u);
+        if(u_norm < 1E-20 ){
+            srand(time(0));
+            for (int i=0; i< u.n_rows; i++){
+                u(i) = ((double)rand() / RAND_MAX);
+                A(j,i) =0.0;
+            }
+            u_norm = arma::norm(u);
+        }
+        u = u/u_norm;
         for(int i=0; i< dictionary.n_rows; i++)
             dictionary(i,j) = u(i);
     }
@@ -116,13 +123,11 @@ void SparseCoding::dic_learn(int T){
     dictionary = arma::mat(patch_size*patch_size, dic_size);
 
     srand(time(0));
-    for(int j=0; j< dic_size; j++){
-        int n_patch = patches.size() * ((double)rand() / RAND_MAX);
-        arma::vec x = patchTovec(patches(n_patch));
+    for(int j=0; j< dic_size; j++)
         for(int i=0; i< dictionary.n_rows; i++)
-            dictionary(i,j) = x(i)/255;
-    }
-        showDic();
+            dictionary(i,j) = 255*((double)rand() / RAND_MAX);
+            
+    showDic();
     //initiate x and alpha
     arma::vec alpha;
     
