@@ -13,7 +13,7 @@
 
 
 \title{INF 552\\Image et vision par ordinateur}
-%\subtitle{Projet : Reconstruction d'images par apprentissage}
+\subtitle{Projet : Reconstruction d'images par \textit{sparse coding}}
 \date{17 Janvier 2016}
 \author{Paul Michel\\Antoine Prouvost\\Élèves en troisième année}
 
@@ -26,9 +26,9 @@
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
 
-Nos motivations pour ce projet étaient de pouvoir implementer un algorithme d'apprentissage avec une vraie application au traitement des images.
+		Nos motivations pour ce projet étaient de pouvoir implementer un algorithme d'apprentissage avec une vraie application au traitement des images.
 
-Nous avons rapidement trouvé des travaux de recherche de l'Inria ainsi qu'un cours qui s'intéressaient à ce sujet \cite{ref1}. L'idée qui nous a tout de suite plu était de pouvoir reconstruire des images bruitées, partiellement détruites ou marquées. Sur la figure \ref{mot}, nous montrons les résultats des recherches de l'Inria \cite{ref1} qui nous ont motivés.
+		Nous avons rapidement trouvé des travaux de recherche de l'Inria ainsi qu'un tutoriel qui s'intéressaient à ce sujet \cite{ref1}. L'idée qui nous a tout de suite plu était de pouvoir reconstruire des images bruitées, partiellement détruites ou marquées. Sur la figure \ref{mot}, nous montrons les résultats des recherches de l'Inria \cite{ref1} qui nous ont motivés.
 
 \begin{figure}[!h]
 	\begin{center}
@@ -37,8 +37,7 @@ Nous avons rapidement trouvé des travaux de recherche de l'Inria ainsi qu'un cou
 	\caption{Motivation : résultats des méthodes de l'Inria\cite{ref1}}
 	\label{mot}
 \end{figure}
-
-Le fonctionnement de l'algorithme consiste à apprendre un dictionnaire de sous images, appelés "patches", de l'image initiale ;  puis, d'utiliser celui-ci pour reconstruire chaque patche. La figure \ref{dic} montre un exemple de dictionnaire obtenu par l'Inria \cite{ref1}. On peut y apercevoir des "features" de l'image.
+		La technique sous jacente, appelée sparse coding (ou encore "encodage creux"), consiste à apprendre un dictionnaire à partir de sous images ( appelés "patches") extraites de l'image initiale. Le dictionnaire est appris de telle façon que chaque patch peut s'exprimer relativement bien comme une combinaison linéaire d'un petit nombre (dout l'adjectif "sparse") d'éléments du dictionnaire. On peut ensuite utiliser le dictionnaire pour reconstruire les patches, même s'ils sont bruités. La figure \ref{dic} montre un exemple de dictionnaire obtenu par l'Inria \cite{ref1}. On peut y apercevoir des "features" de l'image.
 
 \begin{figure}[!h]
 	\begin{center}
@@ -108,25 +107,62 @@ Le fonctionnement de l'algorithme consiste à apprendre un dictionnaire de sous i
 \subsection{Python}
 		Devant les difficultés que nous avons rencontré en C++, nous avons rapidement décidé de réaliser un prototype en python afin de repérer nos erreurs. Les avantages de l'utilisation de python était la simplicité à installer et utiliser des librairies d'optimisation (dont l'implémentation sortait du cadre de notre projet), ainsi que la rapidité d'implémentation.
 		
-		Il a été fait usage des packages numpy (pour des opérations plus efficaces sur les tableaux), scipy et PIL (pour la conversion image/tableau) et scikit-learn (pour l'optimisation LARS lasso et OMP).
+		Il a été fait usage des packages numpy (pour des opérations plus efficaces sur les tableaux), scipy et PIL (pour la conversion image/tableau) et scikit-learn (pour l'optimisation LARS lasso et OMP). Notre code python est trouvable dans le répertoire /python de notre dépôt git. Les packages nécessaires pour le faire tourner sont inclus dans beaucoup de distributions python scientifiques (anaconda pour ne citer qu'elle).
 		
 		Les résultats obtenus sont légèrement plus convaincants:
 		\begin{figure}[!h]
 			\begin{center}
-				\includegraphics[scale=0.45]{./img/python_result.png} 
+				\includegraphics[scale=0.40]{./img/python_result.png} 
 			\end{center}
-			\caption{Résultats de l'implementation python (image originale, reconstruite et dictionnaire)}
+			\caption{Résultats de l'implementation python (image originale, reconstruite et dictionnaire). Temps d'exécution : environ 3 min.}
 		\end{figure}
 		Cependant, l'image obtenue après reconstitution est plus floue. Nous pensons que ces problèmes sont en partie lié au fait que les images de base étant déjà petite et donc peu précises, il est difficile de distinguer le bruit de l'image originale. Nous ne disposions malheureusement pas du matériel nécessaire pour faire tourner notre programme sur des images plus grosses (nous sommes restés en dessous du $400\times 400$ pixels.
+		Le maximum que nous ayons fait a donné le résultat ci dessous, relativement probant (image de $1500\times 1000$ pixels, l'algorithme a tourné pendant 10-20 minutes (apprentissage + reconstitution)) :\\
 		
-		Notre code python est trouvable dans le répertoire /python de notre dépôt git. Les packages nécessaires pour le faire tourner sont inclus dans beaucoup de distributions python scientifiques (anaconda pour ne citer qu'elle).
+		\begin{figure}[!h]
+			\begin{center}
+				\includegraphics[scale=0.15]{./img/japan.png} 
+			\end{center}
+			\caption{Image d'origine}
+		\end{figure}
+		
+		\begin{figure}[!h]
+			\begin{center}
+				\includegraphics[scale=0.15]{./img/japan_noise.png} 
+			\end{center}
+			\caption{Image bruitée}
+		\end{figure}
+		
+		\begin{figure}[!h]
+			\begin{center}
+				\includegraphics[scale=0.15]{./img/japan_noise_reconstructed.png} 
+			\end{center}
+			\caption{Image reconstruite à partir de l'image bruitée (bruit uniforme)}
+		\end{figure}
+		
+		\begin{figure}[!h]
+			\begin{center}
+				\includegraphics[scale=1.15]{./img/japan_dic.png} 
+			\end{center}
+			\caption{Dictionnaire appris sur l'image non bruitée}
+		\end{figure}
+		\begin{figure}[!h]
+			\begin{center}
+				\includegraphics[scale=1]{./img/comparison.png} 
+			\end{center}
+			\caption{Comparaison}
+		\end{figure}
 		
 \cleardoublepage
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
 		Bien que nous nous soyons heurtés à des difficultés d'implémentation, en raison notamment d'une dépendance importante envers des librairies d'optimisation, nous avons néanmoins obtenus des résultats satisfaisants sur notre implémentation python : les dictionnaires obtenus sont cohérents.
+		
 		Pour poursuivre notre projet nous envisageons, maintenant que notre implémentation est fonctionnelle, de la transposer en C++.
+		
 		Certaines améliorations peuvent être apportées à l'algorithme. Par exemple, lors de l'apprentissage du dictionnaire, certains "atomes" restent nuls ou aléatoires. On peut imaginer les éliminer en n'acceptant par exemple que les atomes ayant une entropie sous un certain niveau afin de maximiser l'information obtenue.
+		
+		Ce projet était une bonne occasion d'explorer l'application de domaines mathématiques (optimisation convexe, statistiques notamment) liés à l'apprentissage statistique au traitement d'images. Les résultats semblent confirmer le potentiel de la technique de sparse coding, même si les performances de notre implémentation laissent à désirer. En effet, la grande force de cette technique est que l'on obtient un résultat similaire que le dictionnaire soit appris sur l'image d'origine ou l'image bruitée! On peut donc débruiter une image sans l'image d'origine.
 
 \cleardoublepage
 \bibliographystyle{plain}
